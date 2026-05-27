@@ -1,7 +1,10 @@
 package model;
 
+import exception.PersistenceException;
 import observer.ConsoleTransactionObserver;
 import observer.TransactionEventPublisher;
+import persistence.BankSnapshot;
+import persistence.PersistenceService;
 import repository.AccountRepository;
 import repository.CustomerRepository;
 import service.AccountService;
@@ -33,6 +36,7 @@ public class Bank {
     private final TransactionEventPublisher eventPublisher;
     private final CustomerService customerService;
     private final AccountService accountService;
+    private final PersistenceService persistenceService;
 
     private Bank() {
         customerRepository = new CustomerRepository();
@@ -43,8 +47,28 @@ public class Bank {
 
         customerService = new CustomerService(customerRepository);
         accountService = new AccountService(accountRepository, customerRepository, eventPublisher);
+        persistenceService = new PersistenceService();
     }
 
+    public void save() throws PersistenceException {
+        BankSnapshot snapshot = new BankSnapshot(
+                customerRepository.findAll(),
+                accountRepository.findAll(),
+                AccountIdGenerator.current()
+        );
+        persistenceService.save(snapshot);
+        log.info("model.Bank state persisted.");
+    }
+
+    public void load() throws PersistenceException {
+        BankSnapshot snapshot = persistenceService.load();
+        if (snapshot == null) return;
+
+        snapshot.getCustomers().forEach(customerRepository::save);
+        snapshot.getAccounts().forEach(accountRepository::save);
+        AccountIdGenerator.reset(snapshot.getAccountIdCounterValue());
+        log.info("model.Bank state restored from disk.");
+    }
 
     public CustomerService getCustomerService() { return customerService; }
     public AccountService getAccountService() { return accountService; }
