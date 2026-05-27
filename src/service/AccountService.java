@@ -21,11 +21,14 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
+    private final TransactionEventPublisher eventPublisher;
 
     public AccountService(AccountRepository accountRepository,
-                          CustomerRepository customerRepository) {
+                          CustomerRepository customerRepository,
+                          TransactionEventPublisher eventPublisher) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public SavingsAccount openSavingsAccount(String nationalId,
@@ -59,6 +62,7 @@ public class AccountService {
         Account account = findAccount(accountId);
         Transaction tx = account.deposit(amount);
         log.info("DEPOSIT " + tx);
+        eventPublisher.publish(tx);
         return tx;
     }
 
@@ -67,6 +71,7 @@ public class AccountService {
         Account account = findAccount(accountId);
         Transaction tx = account.withdraw(amount);
         log.info("WITHDRAWAL " + tx);
+        eventPublisher.publish(tx);
         return tx;
     }
 
@@ -110,6 +115,7 @@ public class AccountService {
                             .build();
                     source.recordTransaction(failed);
                     log.warning("TRANSFER FAILED (insufficient funds): " + failed);
+                    eventPublisher.publish(failed);
                     throw new InsufficientFundsException(sourceId, source.getBalance(), totalDebit);
                 }
 
@@ -138,6 +144,8 @@ public class AccountService {
                 target.recordTransaction(inTx);
 
                 log.info("TRANSFER " + outTx);
+                eventPublisher.publish(outTx);
+                eventPublisher.publish(inTx);
                 return outTx;
 
             } finally {
