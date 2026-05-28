@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/** Represents a savings account */
 public class SavingsAccount extends Account implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -19,6 +20,7 @@ public class SavingsAccount extends Account implements Serializable {
         this.interestRate = interestRate;
     }
 
+    /** applies periodic interest to the balance */
     public Transaction applyInterest() {
         getLock().lock();
         try {

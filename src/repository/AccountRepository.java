@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+/** Repository for Accounts */
 public class AccountRepository implements Serializable {
 
     private static final long serialVersionUID = 1L;

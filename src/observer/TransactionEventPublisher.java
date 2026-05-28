@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
+/** Manages all TransactionObservers and notifies them after each transaction. */
 public class TransactionEventPublisher {
 
     private static final Logger log = BankLogger.getLogger();

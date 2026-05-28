@@ -7,6 +7,7 @@ import util.BankLogger;
 import java.io.*;
 import java.util.logging.Logger;
 
+/** Handles saving and loading the bank's snapshot */
 public class PersistenceService {
 
     private static final Logger log = BankLogger.getLogger();
@@ -22,6 +23,7 @@ public class PersistenceService {
         this.filePath = filePath;
     }
 
+    /** serializes the snapshot to disk */
     public void save(BankSnapshot snapshot) throws PersistenceException {
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new BufferedOutputStream(new FileOutputStream(filePath)))) {
@@ -32,6 +34,7 @@ public class PersistenceService {
         }
     }
 
+    /**  deserializes the snapshot from disk*/
     public BankSnapshot load() throws PersistenceException {
         File file = new File(filePath);
         if (!file.exists()) {

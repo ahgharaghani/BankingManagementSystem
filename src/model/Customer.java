@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/** Represents a bank customer */
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -12,7 +13,7 @@ public class Customer implements Serializable {
     private final String nationalId;
     private String firstName;
     private String lastName;
-    private final List<String> accountIds; // stored as account IDs to avoid circular referencing
+    private final List<String> accountIds;
 
     public Customer(String nationalId, String firstName, String lastName) {
         this.nationalId = nationalId;

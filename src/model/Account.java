@@ -12,13 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+/** Abstract base class for all bank account types */
 public abstract class Account implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private final String accountId;
     private BigDecimal balance;
-    private final String ownerId;
+    private final String ownerId;  // Customer national ID
     private final List<Transaction> transactionHistory;
 
     private transient ReentrantLock lock;
@@ -28,13 +29,17 @@ public abstract class Account implements Serializable {
         this.ownerId = ownerId;
         this.balance = initialBalance;
         this.transactionHistory = new ArrayList<>();
-        this.lock = new ReentrantLock(true); // fair lock
+        this.lock = new ReentrantLock(true);
     }
 
+    /** called after deserialization to set non-serializable fields */
     public void initTransientFields() {
         this.lock = new ReentrantLock(true);
     }
 
+    // === Operations =========================================================
+
+    /** deposits the given amount into this account. */
     public Transaction deposit(BigDecimal amount) throws InvalidAmountException {
         validatePositiveAmount(amount);
         lock.lock();
@@ -54,6 +59,7 @@ public abstract class Account implements Serializable {
         }
     }
 
+    /** withdraws the given amount from this account */
     public Transaction withdraw(BigDecimal amount)
             throws InvalidAmountException, InsufficientFundsException {
         validatePositiveAmount(amount);
@@ -89,10 +95,12 @@ public abstract class Account implements Serializable {
         }
     }
 
+    /** default implementation for withdraw fee */
     protected BigDecimal calculateWithdrawalFee(BigDecimal amount) {
         return BigDecimal.ZERO;
     }
 
+    /** records an externally created transaction */
     public void recordTransaction(Transaction tx) {
         lock.lock();
         try {
@@ -102,10 +110,12 @@ public abstract class Account implements Serializable {
         }
     }
 
+    /** Directly adjusts balance; must only be called while holding the account lock. */
     public void adjustBalance(BigDecimal delta) {
         this.balance = this.balance.add(delta);
     }
 
+    // === Getters =========================================================
 
     public ReentrantLock getLock() {
         if (lock == null) initTransientFields();
@@ -122,6 +132,7 @@ public abstract class Account implements Serializable {
 
     public abstract String getAccountType();
 
+    // === Helpers =========================================================
 
     protected void validatePositiveAmount(BigDecimal amount) throws InvalidAmountException {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {

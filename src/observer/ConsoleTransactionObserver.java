@@ -2,6 +2,7 @@ package observer;
 
 import model.Transaction;
 
+/** Observer that prints a summary of the transaction */
 public class ConsoleTransactionObserver implements TransactionObserver {
 
     @Override

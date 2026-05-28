@@ -1,5 +1,6 @@
 package model.enums;
 
+/** supported transaction types */
 public enum TransactionType {
     DEPOSIT,
     WITHDRAWAL,

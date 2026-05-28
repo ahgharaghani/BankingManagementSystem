@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/** Represents a checking account */
 public class CheckingAccount extends Account implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -16,6 +17,7 @@ public class CheckingAccount extends Account implements Serializable {
         this.withdrawalFeeRate = withdrawalFeeRate;
     }
 
+    /** overrides calculateWithdrawalFee and round it up to 2 decimal places */
     @Override
     public BigDecimal calculateWithdrawalFee(BigDecimal amount) {
         return amount.multiply(withdrawalFeeRate).setScale(2, RoundingMode.HALF_UP);

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
+/** Simulates an ATM terminal running as an independent thread */
 public class ATMSimulator implements Runnable {
 
     private static final Logger log = BankLogger.getLogger();
@@ -68,7 +69,6 @@ public class ATMSimulator implements Runnable {
                 log.severe(atmId + " unexpected error: " + e.getMessage());
             }
 
-            // Small pause to interleave threads visibly
             try { Thread.sleep(5); } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
                 break;

@@ -6,6 +6,7 @@ import model.Customer;
 import java.io.Serializable;
 import java.util.Collection;
 
+/** A snapshot of bank's data at a specific moment */
 public class BankSnapshot implements Serializable {
 
     private static final long serialVersionUID = 1L;

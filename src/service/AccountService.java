@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+/** Responsible for all account-related operations */
 public class AccountService {
 
     private static final Logger log = BankLogger.getLogger();
@@ -31,6 +32,9 @@ public class AccountService {
         this.eventPublisher = eventPublisher;
     }
 
+    // === Account opening =========================================================
+
+    /** opens a saving account */
     public SavingsAccount openSavingsAccount(String nationalId,
                                              BigDecimal initialBalance,
                                              BigDecimal interestRate)
@@ -44,6 +48,7 @@ public class AccountService {
         return account;
     }
 
+    /** opens a checking account */
     public CheckingAccount openCheckingAccount(String nationalId,
                                                BigDecimal initialBalance,
                                                BigDecimal feeRate)
@@ -57,6 +62,9 @@ public class AccountService {
         return account;
     }
 
+    // === Financial operations =========================================================
+
+    /** deposit money into the given account */
     public Transaction deposit(String accountId, BigDecimal amount)
             throws AccountNotFoundException, InvalidAmountException {
         Account account = findAccount(accountId);
@@ -66,6 +74,7 @@ public class AccountService {
         return tx;
     }
 
+    /** withdraws money from the given account */
     public Transaction withdraw(String accountId, BigDecimal amount)
             throws AccountNotFoundException, InvalidAmountException, InsufficientFundsException {
         Account account = findAccount(accountId);
@@ -75,6 +84,7 @@ public class AccountService {
         return tx;
     }
 
+    /** transfers money between two accounts */
     public Transaction transfer(String sourceId, String targetId, BigDecimal amount)
             throws AccountNotFoundException, TransferToSameAccountException,
             InvalidAmountException, InsufficientFundsException {
@@ -89,6 +99,7 @@ public class AccountService {
         Account source = findAccount(sourceId);
         Account target = findAccount(targetId);
 
+        // lock the smaller ID first
         Account first  = sourceId.compareTo(targetId) < 0 ? source : target;
         Account second = sourceId.compareTo(targetId) < 0 ? target : source;
 
@@ -99,6 +110,7 @@ public class AccountService {
         try {
             lock2.lock();
             try {
+                // Check if source has enough balance
                 BigDecimal sourceFee = source instanceof CheckingAccount
                         ? ((CheckingAccount) source).calculateWithdrawalFee(amount)
                         : BigDecimal.ZERO;
@@ -119,6 +131,7 @@ public class AccountService {
                     throw new InsufficientFundsException(sourceId, source.getBalance(), totalDebit);
                 }
 
+                // applying to both accounts
                 source.adjustBalance(totalDebit.negate());
                 target.adjustBalance(amount);
 
@@ -156,6 +169,8 @@ public class AccountService {
         }
     }
 
+    // === Getters =========================================================
+
     public Account getAccount(String accountId) throws AccountNotFoundException {
         return findAccount(accountId);
     }
@@ -163,6 +178,8 @@ public class AccountService {
     public Collection<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
+
+    // === Helpers =========================================================
 
     private Account findAccount(String accountId) throws AccountNotFoundException {
         return accountRepository.findById(accountId)

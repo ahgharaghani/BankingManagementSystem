@@ -8,6 +8,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Immutable record of a single banking transaction.
+ * Instances are created via the builder to ensure all fields are set.
+ */
 public class Transaction implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,6 +45,7 @@ public class Transaction implements Serializable {
     public TransactionStatus getStatus(){ return status; }
     public String getDescription() { return description; }
 
+    /** Allows marking a pending transaction as succeeded or failed. */
     public void setStatus(TransactionStatus status) {
         this.status = status;
     }
@@ -53,6 +58,8 @@ public class Transaction implements Serializable {
                 targetAccountId != null ? targetAccountId : "-",
                 status, description != null ? description : "");
     }
+
+    // ── Builder ──────────────────────────────────────────────────────────────
 
     public static Builder builder() {
         return new Builder();

@@ -14,9 +14,12 @@ import util.BankLogger;
 
 import java.util.logging.Logger;
 
+/** Central core for the banking system that handles all components */
 public class Bank {
 
     private static final Logger log = BankLogger.getLogger();
+
+    // === Singleton =========================================================
 
     private static volatile Bank instance;
 
@@ -30,6 +33,8 @@ public class Bank {
         }
         return instance;
     }
+
+    // === Components =========================================================
 
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
@@ -50,6 +55,7 @@ public class Bank {
         persistenceService = new PersistenceService();
     }
 
+    /** saves the bank snapshot to disk */
     public void save() throws PersistenceException {
         BankSnapshot snapshot = new BankSnapshot(
                 customerRepository.findAll(),
@@ -60,6 +66,7 @@ public class Bank {
         log.info("model.Bank state persisted.");
     }
 
+    /** loads a saved snapshot from disk */
     public void load() throws PersistenceException {
         BankSnapshot snapshot = persistenceService.load();
         if (snapshot == null) return;
@@ -69,6 +76,8 @@ public class Bank {
         AccountIdGenerator.reset(snapshot.getAccountIdCounterValue());
         log.info("model.Bank state restored from disk.");
     }
+
+    // === Getters =========================================================
 
     public CustomerService getCustomerService() { return customerService; }
     public AccountService getAccountService() { return accountService; }
